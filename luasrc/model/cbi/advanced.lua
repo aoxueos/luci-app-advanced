@@ -340,5 +340,48 @@ end
 end
 end
 
+if nixio.fs.access("/sys/class/leds/rgb:network/multi_intensity")then
+s:tab("rgbnetworkconf",translate("rgbnetwork"),translate("本页是配置/sys/class/leds/rgb:network/multi_intensity的文档内容。应用保存后立即生效"))
+conf=s:taboption("rgbnetworkconf",Value,"rgbnetworkconf",nil,translate("请以XXX XXX XXX的格式输入RGB值，XXX为0·255的整数。"))
+conf.template="cbi/tvalue"
+conf.rows=20
+conf.wrap="off"
+conf.cfgvalue=function(t,t)
+return e.readfile("/sys/class/leds/rgb:network/multi_intensity")or""
+end
+conf.write=function(a,a,t)
+if t then
+t=t:gsub("\r\n?","\n")
+e.writefile("/tmp/rgbnetwork",t)
+if(luci.sys.call("cmp -s /tmp/rgbnetwork /sys/class/leds/rgb:network/multi_intensity")==1)then
+e.writefile("/sys/class/leds/rgb:network/multi_intensity",t)
+luci.sys.call("/etc/init.d/openclash restart >/dev/null")
+end
+e.remove("/tmp/rgbnetwork")
+end
+end
+end
+
+if nixio.fs.access("/sys/class/leds/rgb:status/multi_intensity")then
+s:tab("rgbstatusconf",translate("rgbstatus"),translate("本页是配置/sys/class/leds/rgb:status/multi_intensity的文档内容。应用保存后立即生效"))
+conf=s:taboption("rgbstatusconf",Value,"rgbstatusconf",nil,translate("请以XXX XXX XXX的格式输入RGB值，XXX为0·255的整数。"))
+conf.template="cbi/tvalue"
+conf.rows=20
+conf.wrap="off"
+conf.cfgvalue=function(t,t)
+return e.readfile("/sys/class/leds/rgb:status/multi_intensity")or""
+end
+conf.write=function(a,a,t)
+if t then
+t=t:gsub("\r\n?","\n")
+e.writefile("/tmp/rgbstatus",t)
+if(luci.sys.call("cmp -s /tmp/rgbstatus /sys/class/leds/rgb:status/multi_intensity")==1)then
+e.writefile("/sys/class/leds/rgb:status/multi_intensity",t)
+luci.sys.call("/etc/init.d/openclash restart >/dev/null")
+end
+e.remove("/tmp/rgbstatus")
+end
+end
+end
 
 return m
