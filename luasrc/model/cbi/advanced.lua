@@ -384,4 +384,26 @@ end
 end
 end
 
+if nixio.fs.access("/sys/class/thermal/cooling_device0/cur_state")then
+s:tab("fansconf",translate("fans"),translate("本页是配置/sys/class/thermal/cooling_device0/cur_state的文档内容。应用保存后立即生效"))
+conf=s:taboption("fansconf",Value,"fansconf",nil,translate("请以X的格式输入调速等级，X为0-3的整数，其中0为关闭3为最大。"))
+conf.template="cbi/tvalue"
+conf.rows=20
+conf.wrap="off"
+conf.cfgvalue=function(t,t)
+return e.readfile("/sys/class/thermal/cooling_device0/cur_state")or""
+end
+conf.write=function(a,a,t)
+if t then
+t=t:gsub("\r\n?","\n")
+e.writefile("/tmp/fans",t)
+if(luci.sys.call("cmp -s /tmp/fans /sys/class/thermal/cooling_device0/cur_state")==1)then
+e.writefile("/sys/class/thermal/cooling_device0/cur_state",t)
+luci.sys.call("/etc/init.d/openclash restart >/dev/null")
+end
+e.remove("/tmp/fans")
+end
+end
+end
+
 return m
